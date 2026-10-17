@@ -19,5 +19,6 @@ jobs:
           docker buildx build \
             -t actions-runner-buildkit:latest \
             --output type=oci,dest=image.tar .
+      - run: ls -la
 
 
