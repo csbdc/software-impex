@@ -16,8 +16,9 @@ jobs:
       - name: build image
         run: |
           cd actions-runner
+
           buildctl build \
             --frontend dockerfile.v0 \
             --local context=. \
             --local dockerfile=. \
-            --output type=image,name=harbor.home.arpa/library/actions-runner-impex:latest,push=true
+            --output type=image,name=harbor-registry.harbor.svc.cluster.local:5000/libary/actions-runner-impex:latest,push=true
