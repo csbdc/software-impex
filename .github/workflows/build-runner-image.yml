@@ -126,32 +126,19 @@ jobs:
 
           sudo mkdir -p /run/buildkit     
 
-      - name: Diagnose rootless prerequisites
+      - name: Diagnose user namespace restrictions
         shell: bash
         run: |
-          set -euxo pipefail
-
-          id
-          echo "PATH=$PATH"
-
-          command -v newuidmap
-          command -v newgidmap
-
-          ls -l "$(command -v newuidmap)"
-          ls -l "$(command -v newgidmap)"
-
-          echo "--- subordinate UID mappings ---"
-          cat /etc/subuid || true
-
-          echo "--- subordinate GID mappings ---"
-          cat /etc/subgid || true
-
-          echo "--- user namespace configuration ---"
-          cat /proc/sys/user/max_user_namespaces || true
-
-          echo "--- user namespace test ---"
+          echo "--- User namespace test ---"
           unshare -Ur true
+          echo "unshare exit code: $?"
 
+          echo "--- Container security ---"
+          grep -E '^(Uid|Gid|CapEff|NoNewPrivs|Seccomp):' /proc/self/status
+
+          echo "--- User namespace ---"
+          readlink /proc/self/ns/user
+          
 
       - name: Start rootless BuildKit
         shell: bash
