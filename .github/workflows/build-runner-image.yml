@@ -86,7 +86,6 @@ jobs:
           printf '%s\n' "${checksum_line} ${archive}" | sha256sum --check -
 
           tar -xzf "${archive}"
-
       - name: Install binaries
         shell: bash
         run: |
