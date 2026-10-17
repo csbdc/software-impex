@@ -4,8 +4,40 @@ on:
   workflow_dispatch:
 
 jobs:
-  pull:
-    name: Pull image binaries
+  pull_trivy:
+    name: Pull trivy binaries
+    runs-on: ubuntu-latest
+    env:
+      TRIVY_VERSION: "0.76.0"
+    steps:
+      - name: Download tarball
+        run: |
+          set -euo pipefail
+          archive="trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
+          checksums="trivy_${TRIVY_VERSION}_checksums.txt"
+          base_url="https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}"
+          curl -f -LO "${base_url}/${archive}"
+          curl -f -LO "${base_url}/${checksums}"
+      - name: Checksum tarball
+        run: |
+          checksum_line=$(grep -F " ${archive}" "${checksums}")
+          if [[ -z "${checksum_line}" ]]; then
+            echo "ERROR: Checksum for ${archive} not found."
+            exit 1
+          fi
+          printf '%s\n' "${checksum_line} ${archive}"
+          printf '%s\n' "${checksum_line}" | sha256sum --check -
+      
+      - uses: actions/upload-artifact@v7
+        with:
+          name: actions-runner-buildkit
+          path: trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz
+          archive: false
+
+  build:
+    name: Build actions-runner-buildkit
+    needs:
+      - pull_trivy
     timeout-minutes: 90
     runs-on: ubuntu-latest
     steps:
@@ -21,4 +53,5 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: actions-runner-buildkit
-          path: image.tar
+          path: actions-runner-buildkit.tar
+          archive: false
