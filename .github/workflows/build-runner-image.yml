@@ -53,7 +53,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          docker buildx build -f ./actions-runner/dockerfile -t csbcd/actions/actions-runner-impex
+          docker buildx build -t csbdc/actions/actions-runner-impex -f ./actions-runner/dockerfile 
 
           
   
