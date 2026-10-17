@@ -100,7 +100,7 @@ jobs:
 
           export PATH="$HOME/.local/bin:$PATH"
 
-          nohup buildkitd --addr unix:///run/buildkit/buildkitd.sock > /var/log/buildkitd.log 2>&1 &
+          nohup buildkitd --addr unix:///run/buildkit/buildkitd.sock > buildkitd.log 2>&1 &
           buildctl --addr unix:///run/buildkit/buildkitd.sock build \
                    --frontend dockerfile.v0 \
                    --local context=. \
