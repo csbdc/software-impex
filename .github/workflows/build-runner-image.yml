@@ -19,6 +19,7 @@ jobs:
           docker buildx build \
             -t actions-runner-buildkit:latest \
             --output type=oci,dest=image.tar .
-      - run: ls -la
-
-
+      - uses: actions/upload-artifact@v7
+        with:
+          name: actions-runner-buildkit
+          path: image.tar
