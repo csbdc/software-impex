@@ -122,17 +122,14 @@ jobs:
           sudo install -m 755 bin/buildctl /usr/local/bin/buildctl
           sudo install -m 755 trivy /usr/local/bin/trivy
 
-          sudo mkdir -p /run/buildkit
-
-      - name: Diagnose BuildKit environment
-        run: |
-          ls -la         
+          sudo mkdir -p /run/buildkit     
 
       - name: Run build
         shell: bash
         run: |
           set -euo pipefail
-
+          
+          cd actions-runner
           sudo nohup /usr/local/bin/buildkitd \
             --addr unix:///run/buildkit/buildkitd.sock \
             > "$RUNNER_TEMP/buildkitd.log" 2>&1 < /dev/null &
@@ -157,7 +154,7 @@ jobs:
             --addr unix:///run/buildkit/buildkitd.sock \
             build \
             --frontend dockerfile.v0 \
-            --local context=actions-runner \
+            --local context=. \
             --local dockerfile=. \
             --output type=oci,dest=image.tar
 
