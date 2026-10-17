@@ -37,6 +37,31 @@ jobs:
           printf '%s\n' "${checksum_line}" | sha256sum --check -
 
           tar -xzf "${archive}" trivy
+      - name: Pull Rootlesskit binary
+        shell: bash
+        env:
+          ROOTLESSKIT_VERSION: "3.3.0"
+        run: |
+          set -euo pipefail
+
+          archive="rootlesskit-x86_64.tar.gz"
+          checksums="SHA256SUMS"
+          base_url="https://github.com/rootless-containers/rootlesskit/releases/download/v${ROOTLESSKIT_VERSION}"
+
+          curl -f -LO "${base_url}/${archive}"
+          curl -f -LO "${base_url}/${checksums}"
+
+          checksum_line=$(grep -F " ${archive}" "${checksums}")
+
+          if [[ -z "${checksum_line}" ]]; then
+            echo "ERROR: Checksum for ${archive} not found."
+            exit 1
+          fi
+
+          printf '%s\n' "${checksum_line} ${archive}"
+          printf '%s\n' "${checksum_line}" | sha256sum --check -
+
+          tar -xzf "${archive}"
       - name: Pull Runc binary
         shell: bash
         env:
@@ -93,6 +118,7 @@ jobs:
 
           mkdir -p "$HOME/.local/bin"
 
+          install -m 755 rootlesskit "$HOME/.local/bin/rootlesskit"
           install -m 755 runc.amd64 "$HOME/.local/bin/runc"
           install -m 755 bin/buildkitd "$HOME/.local/bin/buildkitd"
           install -m 755 bin/buildctl "$HOME/.local/bin/buildctl"
@@ -100,7 +126,7 @@ jobs:
 
           export PATH="$HOME/.local/bin:$PATH"
 
-          buildkitd --addr unix:///run/buildkit/buildkitd.sock
+          rootlesskit buildkitd
           buildctl --addr unix:///run/buildkit/buildkitd.sock build \
                    --frontend dockerfile.v0 \
                    --local context=. \
