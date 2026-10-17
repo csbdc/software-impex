@@ -31,4 +31,4 @@ USER runner
 
 ENV BUILDKIT_HOST=tcp://127.0.0.1:1234
 
-WORKDIR /home/runner
+WORKDIR /home/runner 
