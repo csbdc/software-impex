@@ -19,4 +19,4 @@ jobs:
             --frontend dockerfile.v0 \
             --local context=. \
             --local dockerfile=. \
-            --output type=type=oci,dest=image.tar
+            --output type=oci,dest=image.tar
