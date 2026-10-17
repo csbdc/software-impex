@@ -59,7 +59,7 @@ jobs:
 
           printf '%s\n' "${checksum_line}" | sha256sum --check -
 
-          ./runc --version
+          ./runc.amd64 --version
       - name: Pull Buildkit binary
         shell: bash
         env:
