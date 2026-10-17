@@ -14,5 +14,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Trivy
-        uses: aquasecurity/setup-trivy@v0.2.4
+      - name: Check runner prerequisites
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          command -v docker
+          command -v trivy
+          docker info
+          trivy --version
+
+          echo "Runner prerequisites verified."
