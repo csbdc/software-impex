@@ -124,24 +124,32 @@ jobs:
 
           sudo mkdir -p /run/buildkit     
 
-      - name: Run build
+      - name: Start rootless BuildKit
         shell: bash
         run: |
           set -euo pipefail
-          
-          sudo nohup /usr/local/bin/buildkitd \
-            --addr unix:///run/buildkit/buildkitd.sock \
+
+          export BUILDKIT_HOST="unix://${RUNNER_TEMP}/buildkitd.sock"
+
+          mkdir -p "$HOME/.local/share/buildkit"
+
+          nohup /usr/local/bin/rootlesskit \
+            --copy-up=/etc \
+            --disable-host-loopback \
+            /usr/local/bin/buildkitd \
+            --addr "$BUILDKIT_HOST" \
+            --root "$HOME/.local/share/buildkit" \
+            --oci-worker-no-process-sandbox \
+            --oci-worker-snapshotter=native \
             > "$RUNNER_TEMP/buildkitd.log" 2>&1 < /dev/null &
 
           for i in $(seq 1 30); do
-            if sudo /usr/local/bin/buildctl \
-              --addr unix:///run/buildkit/buildkitd.sock \
-              debug workers >/dev/null 2>&1; then
+            if /usr/local/bin/buildctl \
+              --addr "$BUILDKIT_HOST" debug workers >/dev/null 2>&1; then
               break
             fi
 
             if [[ "$i" -eq 30 ]]; then
-              echo "BuildKit failed to start"
               cat "$RUNNER_TEMP/buildkitd.log"
               exit 1
             fi
@@ -149,17 +157,12 @@ jobs:
             sleep 1
           done
 
-          ls -la
-
-          sudo /usr/local/bin/buildctl \
-            --addr unix:///run/buildkit/buildkitd.sock \
-            build \
+          /usr/local/bin/buildctl --addr "$BUILDKIT_HOST" build \
             --frontend dockerfile.v0 \
             --local context=. \
             --local dockerfile=. \
+            --opt filename=dockerfile \
             --output type=oci,dest=image.tar
-
-          sudo chown "$(id -u):$(id -g)" image.tar
 
       - uses: actions/upload-artifact@v7
         with:
