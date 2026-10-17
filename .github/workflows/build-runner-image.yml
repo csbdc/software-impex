@@ -93,7 +93,6 @@ jobs:
           set -euo pipefail
 
           mkdir -p "$HOME/.local/bin"
-          install -m 755 runc "$HOME/.local/bin/runc"
 
           install -m 755 runc.amd64 "$HOME/.local/bin/runc"
           install -m 755 bin/buildkitd "$HOME/.local/bin/buildkitd"
