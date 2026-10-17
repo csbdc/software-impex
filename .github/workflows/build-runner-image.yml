@@ -129,7 +129,6 @@ jobs:
         run: |
           set -euo pipefail
           
-          cd actions-runner
           sudo nohup /usr/local/bin/buildkitd \
             --addr unix:///run/buildkit/buildkitd.sock \
             > "$RUNNER_TEMP/buildkitd.log" 2>&1 < /dev/null &
@@ -149,6 +148,10 @@ jobs:
 
             sleep 1
           done
+
+          cd actions-runner
+
+          ls -la
 
           sudo /usr/local/bin/buildctl \
             --addr unix:///run/buildkit/buildkitd.sock \
