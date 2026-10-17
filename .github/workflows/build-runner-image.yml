@@ -35,26 +35,54 @@ jobs:
 
           tar -xzf "${archive}" trivy
           ./trivy --version
-
-  build:
-    name: Build docker image
-    needs:
-      - pull
-    timeout-minutes: 90
-    runs-on: prereq-build-runners
-    steps:
-      - name: Checkout repository
-        id: checkout
-        uses: actions/checkout@v4
-
-      - name: Docker image build
-        if: steps.checkout.outcome == 'success'
+      - name: Pull Runc binary
         shell: bash
+        env:
+          RUNC_VERSION: "1.5.2"
         run: |
           set -euo pipefail
-          pwd
-          ls -la
-          docker buildx build -t actions/actions-runner-impex:impex ./actions-runner/dockerfile 
 
-          
-  
+          archive="runc.amd64"
+          checksums="runc.sha256sum"
+
+          base_url="https://github.com/opencontainers/runc/releases/download/v${RUNC_VERSION}"
+
+          curl -f -LO "${base_url}/${archive}"
+          curl -f -LO "${base_url}/${checksums}"
+
+          checksum_line=$(grep -F " ${archive}" "${checksums}")
+
+          if [[ -z "${checksum_line}" ]]; then
+            echo "ERROR: Checksum for ${archive} not found."
+            exit 1
+          fi
+
+          printf '%s\n' "${checksum_line}" | sha256sum --check -
+
+          tar -xzf "${archive}" trivy
+          ./runc --version
+      - name: Pull Buildkit binary
+        shell: bash
+        env:
+          BUILDKIT_VERSION: "0.34.0"
+        run: |
+          set -euo pipefail
+
+          archive="buildkit-v${BUILDKIT_VERSION}.linux-amd64.tar.gz"
+          checksums="buildkit-v${BUILDKIT_VERSION}.linux-amd64.provenance.json"
+
+          base_url="https://github.com/moby/buildkit/releases/download/v${BUILDKIT_VERSION}"
+          curl -f -LO "${base_url}/${archive}"
+          curl -f -LO "${base_url}/${checksums}"
+
+          checksum_line=$(jq -r '.subject[].digest.sha256' ${checksums})
+
+          if [[ -z "${checksum_line}" ]]; then
+            echo "ERROR: Checksum for ${archive} not found."
+            exit 1
+          fi
+
+          printf '%s\n' "${checksum_line} ${checksums}" | sha256sum --check -
+
+          tar -xzf "${archive}" trivy
+          ./trivy --version
