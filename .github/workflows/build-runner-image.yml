@@ -34,7 +34,6 @@ jobs:
           printf '%s\n' "${checksum_line}" | sha256sum --check -
 
           tar -xzf "${archive}" trivy
-          ./trivy --version
       - name: Pull Runc binary
         shell: bash
         env:
@@ -58,8 +57,6 @@ jobs:
           fi
 
           printf '%s\n' "${checksum_line}" | sha256sum --check -
-
-          ./runc.amd64 --version
       - name: Pull Buildkit binary
         shell: bash
         env:
@@ -84,4 +81,3 @@ jobs:
           printf '%s\n' "${checksum_line} ${checksums}" | sha256sum --check -
 
           tar -xzf "${archive}"
-          ./bin/buildctl --version
