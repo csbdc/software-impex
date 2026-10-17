@@ -125,11 +125,8 @@ jobs:
           install -m 755 trivy "$HOME/.local/bin/trivy"
 
           export PATH="$HOME/.local/bin:$PATH"
-          
-          sudo apt-get update -y
-          sudo apt-get install -y uidmap
 
-          rootlesskit buildkitd
+          sudo buildkitd
           buildctl --addr unix:///run/buildkit/buildkitd.sock build \
                    --frontend dockerfile.v0 \
                    --local context=. \
