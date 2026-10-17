@@ -1,0 +1,15 @@
+name: Build impex runner image
+
+on:
+  workflow_dispatch:
+
+jobs:
+  pull:
+    name: Pull image binaries
+    timeout-minutes: 90
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - run: |
+          buildx --version
