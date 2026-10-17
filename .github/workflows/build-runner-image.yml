@@ -125,6 +125,8 @@ jobs:
           install -m 755 trivy "$HOME/.local/bin/trivy"
 
           export PATH="$HOME/.local/bin:$PATH"
+          
+          apt-get install -y uidmap
 
           rootlesskit buildkitd
           buildctl --addr unix:///run/buildkit/buildkitd.sock build \
