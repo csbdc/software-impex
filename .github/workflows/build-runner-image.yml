@@ -149,8 +149,6 @@ jobs:
             sleep 1
           done
 
-          cd actions-runner
-
           ls -la
 
           sudo /usr/local/bin/buildctl \
@@ -158,7 +156,7 @@ jobs:
             build \
             --frontend dockerfile.v0 \
             --local context=. \
-            --local dockerfile=dockerfile \
+            --local dockerfile=. \
             --output type=oci,dest=image.tar
 
           sudo chown "$(id -u):$(id -g)" image.tar
