@@ -12,7 +12,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Pull Trivy binary
         shell: bash
         env:
@@ -87,6 +86,9 @@ jobs:
           printf '%s\n' "${checksum_line} ${archive}" | sha256sum --check -
 
           tar -xzf "${archive}"
+      - name: Test
+        shell: bash
+        run: pwd
       - name: Install binaries
         shell: bash
         run: |
@@ -98,7 +100,7 @@ jobs:
           install -m 755 runc.amd64 "$HOME/.local/bin/runc"
           install -m 755 bin/buildkitd "$HOME/.local/bin/buildkitd"
           install -m 755 bin/buildctl "$HOME/.local/bin/buildctl"
-          install -m 755 trivy "$HOME/.local/bin/trivy"
+          install -m 755 trivy /usr/local/bin/trivy
 
           export PATH="$HOME/.local/bin:$PATH"
 
