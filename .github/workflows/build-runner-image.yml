@@ -14,13 +14,24 @@ jobs:
         shell: bash
         env:
           TRIVY_VERSION: "0.76.0"
-
         run: |
           set -euo pipefail
 
-          wget "https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_$TRIVY_VERSION_Linux-64bit.tar.gz"
-          wget https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_$TRIVY_VERSION_checksums.txt
+          archive="trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
+          checksums="trivy_${TRIVY_VERSION}_checksums.txt"
+          base_url="https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}"
 
-          checksum=$(cat trivy_$TRIVY_VERSION_checksums.txt | grep trivy_$TRIVY_VERSION_Linux-64bit.tar.gz)
+          wget "${base_url}/${archive}"
+          wget "${base_url}/${checksums}"
 
-          echo $checksum | sha256sum -c -
+          checksum_line=$(grep -F " ${archive}" "${checksums}")
+
+          if [[ -z "${checksum_line}" ]]; then
+            echo "ERROR: Checksum for ${archive} not found."
+            exit 1
+          fi
+
+          printf '%s\n' "${checksum_line}" | sha256sum --check -
+
+          tar -xzf "${archive}" trivy
+          ./trivy --version
