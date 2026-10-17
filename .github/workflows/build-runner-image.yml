@@ -122,6 +122,8 @@ jobs:
           sudo install -m 755 bin/buildctl /usr/local/bin/buildctl
           sudo install -m 755 trivy /usr/local/bin/trivy
 
+          sudo apt-get update -y && sudo apt-get install -y --no-install-recommends uidmap
+          
           sudo mkdir -p /run/buildkit     
 
       - name: Start rootless BuildKit
