@@ -1,8 +1,9 @@
-name: Build impex runner image
+name: impex image
 
 on:
   workflow_dispatch:
-
+  push:
+    
 jobs:
   pull:
     name: Pull image binaries
