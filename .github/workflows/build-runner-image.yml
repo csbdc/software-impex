@@ -126,7 +126,7 @@ jobs:
 
           export PATH="$HOME/.local/bin:$PATH"
 
-          sudo nohup buildkitd > buildkitd.log 2>&1 &
+          nohup sudo buildkitd > buildkitd.log 2>&1 &
           cat buildkitd.log
           buildctl --addr unix:///run/buildkit/buildkitd.sock build \
                    --frontend dockerfile.v0 \
