@@ -8,7 +8,7 @@ jobs:
   pull:
     name: Pull image binaries
     timeout-minutes: 90
-    runs-on: preqreq-build-runners
+    runs-on: prereq-build-runners
     steps:
       - name: Create artifacts dir
         shell: bash
