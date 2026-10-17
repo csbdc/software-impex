@@ -1,0 +1,26 @@
+name: Build impex runner image
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  pull_and_scan:
+    name: Pull image binaries
+    timeout-minutes: 90
+    runs-on: linux
+    steps:
+      - name: Pull Trivy binary
+        shell: bash
+        env:
+          TRIVY_VERSION: "0.76.0"
+
+        run: |
+          set -euo pipefail
+
+          wget "https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_$TRIVY_VERSION_Linux-64bit.tar.gz"
+          wget https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_$TRIVY_VERSION_checksums.txt
+
+          checksum=$(cat trivy_$TRIVY_VERSION_checksums.txt | grep trivy_$TRIVY_VERSION_Linux-64bit.tar.gz)
+
+          echo $checksum | sha256sum -c -
