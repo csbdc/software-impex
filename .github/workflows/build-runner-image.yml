@@ -127,11 +127,13 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
 
           sudo nohup buildkitd > buildkitd.log 2>&1 &
+          cat buildkitd.log
           buildctl --addr unix:///run/buildkit/buildkitd.sock build \
                    --frontend dockerfile.v0 \
                    --local context=. \
                    --local dockerfile=. \
                    --output type=oci,dest=image.tar
+
       - uses: actions/upload-artifact@v7
         with:
           name: my-artifact
