@@ -12,6 +12,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - run: cat /home/runner/run.sh
       - name: build image
         run: |
           cd actions-runner
