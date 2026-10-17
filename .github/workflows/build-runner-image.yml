@@ -77,7 +77,8 @@ jobs:
             echo "ERROR: Checksum for ${archive} not found."
             exit 1
           fi
-
+          
+          printf '%s\n' "${checksum_line} ${checksums}"
           printf '%s\n' "${checksum_line} ${checksums}" | sha256sum --check -
 
           tar -xzf "${archive}"
