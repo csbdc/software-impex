@@ -59,7 +59,6 @@ jobs:
 
           printf '%s\n' "${checksum_line}" | sha256sum --check -
 
-          tar -xzf "${archive}" trivy
           ./runc --version
       - name: Pull Buildkit binary
         shell: bash
@@ -84,5 +83,5 @@ jobs:
 
           printf '%s\n' "${checksum_line} ${checksums}" | sha256sum --check -
 
-          tar -xzf "${archive}" trivy
-          ./trivy --version
+          tar -xzf "${archive}"
+          ./bin/buildctl --version
