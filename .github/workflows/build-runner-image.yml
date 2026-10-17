@@ -92,11 +92,16 @@ jobs:
         run: |
           set -euo pipefail
 
-          install -m 755 runc.amd64 /usr/local/bin/runc
-          install -m 755 bin/buildkitd /usr/local/bin/buildkitd
-          install -m 755 bin/buildctl /usr/local/bin/buildctl
-          install -m 755 trivy /usr/local/bin/trivy
-          
+          mkdir -p "$HOME/.local/bin"
+          install -m 755 runc "$HOME/.local/bin/runc"
+
+          install -m 755 runc.amd64 "$HOME/.local/bin/runc"
+          install -m 755 bin/buildkitd "$HOME/.local/bin/buildkitd"
+          install -m 755 bin/buildctl "$HOME/.local/bin/buildctl"
+          install -m 755 trivy "$HOME/.local/bin/trivy"
+
+          export PATH="$HOME/.local/bin:$PATH"
+
           nohup buildkitd --addr unix:///run/buildkit/buildkitd.sock > /var/log/buildkitd.log 2>&1 &
           buildctl --addr unix:///run/buildkit/buildkitd.sock build \
                    --frontend dockerfile.v0 \
