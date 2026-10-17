@@ -10,6 +10,9 @@ jobs:
     timeout-minutes: 90
     runs-on: prereq-build-runners
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Pull Trivy binary
         shell: bash
         env:
@@ -30,7 +33,7 @@ jobs:
             echo "ERROR: Checksum for ${archive} not found."
             exit 1
           fi
-          
+
           printf '%s\n' "${checksum_line} ${archive}"
           printf '%s\n' "${checksum_line}" | sha256sum --check -
 
@@ -84,3 +87,19 @@ jobs:
           printf '%s\n' "${checksum_line} ${archive}" | sha256sum --check -
 
           tar -xzf "${archive}"
+      - name: Install binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          install -m 755 runc.amd64 /usr/local/bin/runc
+          install -m 755 bin/buildkitd /usr/local/bin/buildkitd
+          install -m 755 bin/buildctl /usr/local/bin/buildctl
+          install -m 755 trivy /usr/local/bin/trivy
+          
+          nohup buildkitd --addr unix:///run/buildkit/buildkitd.sock > /var/log/buildkitd.log 2>&1 &
+          buildctl --addr unix:///run/buildkit/buildkitd.sock build \
+                   --frontend dockerfile.v0 \
+                   --local context=. \
+                   --local dockerfile=. \
+                   --output type=oci,dest=image.tar
