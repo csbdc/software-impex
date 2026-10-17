@@ -8,7 +8,7 @@ jobs:
   pull:
     name: Pull image binaries
     timeout-minutes: 90
-    runs-on: ubuntu-latest
+    runs-on: prereq-build-runners
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
