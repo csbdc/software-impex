@@ -124,6 +124,15 @@ jobs:
 
           sudo mkdir -p /run/buildkit
 
+      - name: Diagnose BuildKit environment
+        run: |
+          pwd         
+
+      - name: Run build
+        shell: bash
+        run: |
+          set -euo pipefail
+
           sudo nohup /usr/local/bin/buildkitd \
             --addr unix:///run/buildkit/buildkitd.sock \
             > "$RUNNER_TEMP/buildkitd.log" 2>&1 < /dev/null &
