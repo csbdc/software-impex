@@ -30,7 +30,8 @@ jobs:
             echo "ERROR: Checksum for ${archive} not found."
             exit 1
           fi
-
+          
+          printf '%s\n' "${checksum_line} ${archive}"
           printf '%s\n' "${checksum_line}" | sha256sum --check -
 
           tar -xzf "${archive}" trivy
@@ -56,6 +57,7 @@ jobs:
             exit 1
           fi
 
+          printf '%s\n' "${checksum_line} ${archive}"
           printf '%s\n' "${checksum_line}" | sha256sum --check -
       - name: Pull Buildkit binary
         shell: bash
