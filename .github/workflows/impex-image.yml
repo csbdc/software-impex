@@ -3,7 +3,7 @@ name: impex image
 on:
   workflow_dispatch:
   push:
-    
+
 jobs:
   pull:
     name: Pull image binaries
@@ -13,4 +13,4 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - run: |
-          buildx --version
+          buildctl --version
