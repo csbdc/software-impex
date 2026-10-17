@@ -1,2 +1,2 @@
 FROM ghcr.io/actions/actions-runner
-COPY artifacts ./
+COPY trivy trivy

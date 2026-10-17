@@ -36,8 +36,6 @@ jobs:
           tar -xzf "${archive}" trivy
           ./trivy --version
 
-          mv trivy ./artifacts/
-
   build:
     name: Build docker image
     needs:
