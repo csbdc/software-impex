@@ -126,7 +126,7 @@ jobs:
 
       - name: Diagnose BuildKit environment
         run: |
-          pwd         
+          ls -la         
 
       - name: Run build
         shell: bash
@@ -157,7 +157,7 @@ jobs:
             --addr unix:///run/buildkit/buildkitd.sock \
             build \
             --frontend dockerfile.v0 \
-            --local context=. \
+            --local context=actions-runner \
             --local dockerfile=. \
             --output type=oci,dest=image.tar
 
