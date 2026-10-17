@@ -126,6 +126,7 @@ jobs:
 
           export PATH="$HOME/.local/bin:$PATH"
           
+          sudo apt-get update -y
           sudo apt-get install -y uidmap
 
           rootlesskit buildkitd
