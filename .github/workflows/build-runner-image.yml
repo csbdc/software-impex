@@ -5,11 +5,15 @@ on:
   push:
 
 jobs:
-  pull_and_scan:
+  pull:
     name: Pull image binaries
     timeout-minutes: 90
     runs-on: ubuntu-latest
     steps:
+      - name: Create artifacts dir
+        shell: bash
+        run: mkdir -p ./artifacts
+
       - name: Pull Trivy binary
         shell: bash
         env:
@@ -35,3 +39,13 @@ jobs:
 
           tar -xzf "${archive}" trivy
           ./trivy --version
+
+          mv trivy ./artifacts/
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: impexed-binaries
+          path: ./artifacts
+          retention-days: 1
+  
