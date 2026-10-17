@@ -12,5 +12,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - run: |
-          buildctl --version
+      - name: build image
+        run: |
+          cd actions-runner
+          buildctl build \
+            --frontend dockerfile.v0 \
+            --local context=. \
+            --local dockerfile=. \
+            --output type=type=oci,dest=image.tar
