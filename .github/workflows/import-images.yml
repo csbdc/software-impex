@@ -1,0 +1,18 @@
+name: Scan and Import Images to Harbor
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  scan-and-push:
+    name: Scan archives and import passing images
+    runs-on: software-impex-runners
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Trivy
+        uses: aquasecurity/setup-trivy@v0.2.4
