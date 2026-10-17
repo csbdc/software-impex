@@ -44,9 +44,11 @@ jobs:
     runs-on: prereq-build-runners
     steps:
       - name: Checkout repository
+        id: checkout
         uses: actions/checkout@v4
 
       - name: Docker image build
+        if: steps.checkout.outcome == 'success'
         shell: bash
         run: |
           set -euo pipefail
