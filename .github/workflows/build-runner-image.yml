@@ -116,23 +116,43 @@ jobs:
         run: |
           set -euo pipefail
 
-          mkdir -p "$HOME/.local/bin"
+          sudo install -m 755 rootlesskit /usr/local/bin/rootlesskit
+          sudo install -m 755 runc.amd64 /usr/local/bin/runc
+          sudo install -m 755 bin/buildkitd /usr/local/bin/buildkitd
+          sudo install -m 755 bin/buildctl /usr/local/bin/buildctl
+          sudo install -m 755 trivy /usr/local/bin/trivy
 
-          install -m 755 rootlesskit "$HOME/.local/bin/rootlesskit"
-          install -m 755 runc.amd64 "$HOME/.local/bin/runc"
-          install -m 755 bin/buildkitd "$HOME/.local/bin/buildkitd"
-          install -m 755 bin/buildctl "$HOME/.local/bin/buildctl"
-          install -m 755 trivy "$HOME/.local/bin/trivy"
+          sudo mkdir -p /run/buildkit
 
-          export PATH="$HOME/.local/bin:$PATH"
+          sudo nohup /usr/local/bin/buildkitd \
+            --addr unix:///run/buildkit/buildkitd.sock \
+            > "$RUNNER_TEMP/buildkitd.log" 2>&1 < /dev/null &
 
-          sudo nohup buildkitd --addr unix:///run/buildkit/buildkitd.sock  > buildkitd.log 2>&1 &
-          cat buildkitd.log
-          buildctl --addr unix:///run/buildkit/buildkitd.sock build \
-                   --frontend dockerfile.v0 \
-                   --local context=. \
-                   --local dockerfile=. \
-                   --output type=oci,dest=image.tar
+          for i in $(seq 1 30); do
+            if sudo /usr/local/bin/buildctl \
+              --addr unix:///run/buildkit/buildkitd.sock \
+              debug workers >/dev/null 2>&1; then
+              break
+            fi
+
+            if [[ "$i" -eq 30 ]]; then
+              echo "BuildKit failed to start"
+              cat "$RUNNER_TEMP/buildkitd.log"
+              exit 1
+            fi
+
+            sleep 1
+          done
+
+          sudo /usr/local/bin/buildctl \
+            --addr unix:///run/buildkit/buildkitd.sock \
+            build \
+            --frontend dockerfile.v0 \
+            --local context=. \
+            --local dockerfile=. \
+            --output type=oci,dest=image.tar
+
+          sudo chown "$(id -u):$(id -g)" image.tar
 
       - uses: actions/upload-artifact@v7
         with:
