@@ -21,4 +21,4 @@ jobs:
             --frontend dockerfile.v0 \
             --local context=. \
             --local dockerfile=. \
-            --output type=image,name=harbor.home.arpa/library/actions-runner-impex:latest,push=true,registry.insecure=true
+            --output type=image,name=harbor-core.harbor.svc.cluster.local/library/actions-runner-impex:latest,push=true,registry.insecure=true
