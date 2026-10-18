@@ -21,4 +21,5 @@ jobs:
             --frontend dockerfile.v0 \
             --local context=. \
             --local dockerfile=. \
-            --output type=image,name=harbor.home.arpa/library/actions-runner-impex:latest,push=true,registry.insecure=true
+            --registry-auth-tlscontext host=harbor.home.arpa,insecure=false,ca=/etc/buildkit/certs/ca.crt \
+            --output type=image,name=harbor.home.arpa/library/actions-runner-impex:latest,push=true
