@@ -13,13 +13,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - run: cat /home/runner/run.sh
-      - name: Log in to Harbor
-        uses: docker/login-action@v4
-        with:
-          registry: harbor.home.arpa
-          username: ${{ secrets.HARBOR_USER }}
-          password: ${{ secrets.HARBOR_PASSWORD }}
+      - name: Configure Harbor credentials for BuildKit
+        env:
+          HARBOR_USER: ${{ secrets.HARBOR_USER }}
+          HARBOR_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
+          DOCKER_CONFIG: /home/runner/.docker
+        run: |
+          : "${HARBOR_USER:?HARBOR_USER is required}"
+          : "${HARBOR_PASSWORD:?HARBOR_PASSWORD is required}"
+          umask 077
+          mkdir -p "$DOCKER_CONFIG"
+          auth="$(printf '%s:%s' "$HARBOR_USER" "$HARBOR_PASSWORD" | base64 -w0)"
+          printf '{"auths":{"harbor.home.arpa":{"auth":"%s"}}}\n' "$auth" > "$DOCKER_CONFIG/config.json"
       - name: build image
+        env:
+          DOCKER_CONFIG: /home/runner/.docker
         run: |
           cd actions-runner
 
