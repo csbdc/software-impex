@@ -37,10 +37,11 @@ jobs:
           sudo apt update && sudo apt install clamav -y; \
           sudo usermod -aG clamav runner; \
           sudo mkdir -p /usr/local/share/clamav; \
-          sudo chown runner:runner /usr/local/share/clamav;
-          pwd; ls -la
+          sudo chown runner:runner /usr/local/share/clamav
       - name: Grab ClamAV db
-        run: sudo freshclam --config-file="$PWD/actions-runner/freshclam.conf"
+        run: |
+          pwd; ls -la actions-runner;
+          sudo freshclam --config-file="$PWD/actions-runner/freshclam.conf"
       - name: Download built image
         uses: actions/download-artifact@v8
         with:
