@@ -40,8 +40,7 @@ jobs:
           sudo chown runner:runner /usr/local/share/clamav
       - name: Grab ClamAV db
         run: |
-          pwd; ls -la actions-runner; cat $PWD/actions-runner/freshclam.conf;
-          sudo freshclam --config-file="$PWD/actions-runner/freshclam.conf"
+          freshclam --config-file="$PWD/actions-runner/freshclam.conf" --verbose
       - name: Download built image
         uses: actions/download-artifact@v8
         with:
