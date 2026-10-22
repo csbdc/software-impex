@@ -37,14 +37,11 @@ jobs:
           set -euo pipefail
           sudo apt update
           sudo apt install clamav clamav-freshclam -y
-          sudo usermod -aG clamav runner
           sudo mkdir -p /usr/local/share/clamav
-          sudo chown runner:runner /usr/local/share/clamav
+          sudo chown clamav:clamav /usr/local/share/clamav
       - name: Grab ClamAV db
         run: |
-          # The custom config sets DatabaseOwner; run as root so freshclam can
-          # apply that ownership while writing the database.
-          sudo freshclam --config-file="$PWD/actions-runner/freshclam.conf" --verbose
+          sudo freshclam --verbose
       - name: Download built image
         uses: actions/download-artifact@v8
         with:
