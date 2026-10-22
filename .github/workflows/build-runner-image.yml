@@ -34,13 +34,17 @@ jobs:
         uses: actions/checkout@v4
       - name: Install ClamAV
         run: |
-          sudo apt update && sudo apt install clamav -y; \
-          sudo usermod -aG clamav runner; \
-          sudo mkdir -p /usr/local/share/clamav; \
+          set -euo pipefail
+          sudo apt update
+          sudo apt install clamav clamav-freshclam -y
+          sudo usermod -aG clamav runner
+          sudo mkdir -p /usr/local/share/clamav
           sudo chown runner:runner /usr/local/share/clamav
       - name: Grab ClamAV db
         run: |
-          freshclam --config-file="$PWD/actions-runner/freshclam.conf" --verbose
+          # The custom config sets DatabaseOwner; run as root so freshclam can
+          # apply that ownership while writing the database.
+          sudo freshclam --config-file="$PWD/actions-runner/freshclam.conf" --verbose
       - name: Download built image
         uses: actions/download-artifact@v8
         with:
