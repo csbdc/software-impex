@@ -24,7 +24,8 @@ jobs:
   #         name: actions-runner
   #         path: actions-runner.tar
   #         archive: false
-  scan:
+
+  scan-malware:
     # needs: build
     name: Scan for malware
     runs-on: ubuntu-latest
@@ -44,3 +45,11 @@ jobs:
           path: actions-runner.tar
       - name: Scan Image with ClamAV
         run: clamscan --infected --recursive actions-runner.tar
+
+  scan-vulnerabilities:
+    # needs: build
+    name: Scan for vulnerabilities
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
