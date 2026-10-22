@@ -1,0 +1,46 @@
+name: Bootstrap runner image
+
+on:
+  workflow_dispatch:
+
+jobs:
+  # build:
+  #   name: Build container image
+  #   timeout-minutes: 90
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v4
+  #     - name: Build image
+  #       run: |
+  #         docker buildx build \
+  #           -t actions-runner-buildkit:latest \
+  #           --output type=oci,dest=actions-runner.tar actions-runner/.
+  #     - name: Upload Image
+  #       uses: actions/upload-artifact@v7
+  #       with:
+  #         name: actions-runner
+  #         path: actions-runner.tar
+  #         archive: false
+  scan:
+    # needs: build
+    name: Scan for malware
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install ClamAV
+        run: |
+          sudo apt update && sudo apt install clamav -y; \
+          sudo usermod -aG clamav runner;\
+      - name: Grab clamav db
+        run: ls -la; sudo freshclam --config-file=actions-runner/freshclam.conf
+      - name: Download built image
+        uses: actions/download-artifact@v8
+        with:
+          name: actions-runner
+          path: actions-runner.tar
+      - name: Scan Image with ClamAV
+        run: clamscan --infected --recursive actions-runner.tar
