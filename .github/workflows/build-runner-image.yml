@@ -1,0 +1,124 @@
+name: Bootstrap runner image
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  packages: write
+
+jobs:
+  build:
+    name: Build container image
+    timeout-minutes: 90
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Build image
+        run: |
+          docker buildx build \
+            -t actions-runner:latest \
+            --output type=docker,dest=actions-runner.tar actions-runner/.
+      - name: Upload Image
+        uses: actions/upload-artifact@v7
+        with:
+          path: actions-runner.tar
+          archive: false
+          retention-days: 0.2
+
+  scan-malware:
+    needs: build
+    name: Scan for malware
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install ClamAV
+        run: |
+          set -euo pipefail
+          sudo apt update
+          sudo apt install clamav clamav-freshclam -y
+          sudo mkdir -p /usr/local/share/clamav
+          sudo chown clamav:clamav /usr/local/share/clamav
+      - name: Grab ClamAV db
+        run: |
+          sudo freshclam --verbose --log=/tmp/freshclam.log
+      - name: Download built image
+        uses: actions/download-artifact@v8
+        with:
+          name: actions-runner.tar
+          path: ./artifacts
+      - name: Scan Image with ClamAV
+        run: clamscan --infected --recursive ./artifacts/actions-runner.tar
+
+  scan-vulnerabilities:
+    needs: build
+    name: Scan for vulnerabilities
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download built image
+        uses: actions/download-artifact@v8
+        with:
+          name: actions-runner.tar
+          path: ./artifacts
+
+      - name: Install Trivy
+        uses: aquasecurity/setup-trivy@e07451d2e059ed86c2870430ea286b3a9e0bf241
+
+      - name: Scan filesystem
+        run: |
+          trivy fs \
+            --scanners vuln,secret,misconfig \
+            --severity HIGH,CRITICAL \
+            --format sarif \
+            --output trivy-fs.sarif \
+            .
+      - name: Upload Trivy results to GitHub
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-fs.sarif
+          category: trivy-fs
+
+      - name: Scan container image
+        run: |
+          trivy image \
+            --input ./artifacts/actions-runner.tar \
+            --severity HIGH,CRITICAL \
+            --output trivy-image.sarif \
+            --format sarif
+      - name: Upload Trivy results to GitHub
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-image.sarif
+          category: trivy-container-image
+
+  push:
+    needs:
+      - scan-malware
+      - scan-vulnerabilities
+    name: Push image to GHCR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download built image
+        uses: actions/download-artifact@v8
+        with:
+          name: actions-runner.tar
+          path: ./artifacts
+
+      - name: Load Docker image
+        run: docker load -i ./artifacts/actions-runner.tar
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag image
+        run: docker tag actions-runner:latest ghcr.io/${{ github.repository }}/actions-runner:${{ github.sha }}
+
+      - name: Push image
+        run: docker push ghcr.io/${{ github.repository }}/actions-runner:${{ github.sha }}
