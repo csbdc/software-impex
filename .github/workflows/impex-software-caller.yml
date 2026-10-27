@@ -9,5 +9,5 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
-            - run: ls -la ./.github; pwd
+            - run: ls -la ./.github/workflows/; pwd
             - uses: ./.github/workflows/impex-software.yml
