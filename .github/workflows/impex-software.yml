@@ -1,0 +1,10 @@
+name: Impex software
+
+on:
+  workflow_call:
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - run: echo "works"; exit 0
