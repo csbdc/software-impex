@@ -11,8 +11,7 @@ jobs:
     steps:
       - id: set
         run: |
-          pwd;
-          find . -mindepth 1 -maxdepth 1 -type d ! -name '.*'
+          pwd; find .
 
   scan:
     needs: determine
