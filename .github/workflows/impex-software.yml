@@ -2,9 +2,13 @@ name: Impex software
 
 on:
   workflow_call:
+    inputs:
+      software_folders:
+        required: true
+        type: string
 
 jobs:
     test:
         runs-on: ubuntu-latest
         steps:
-            - run: echo "works"; exit 0
+            - run: echo "${{ inputs.software_folders }}"; exit 0

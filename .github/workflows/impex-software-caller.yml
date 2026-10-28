@@ -4,6 +4,23 @@ on:
   push:
 
 jobs:
-    test:
-      uses: ./.github/workflows/impex-software.yml
-       
+  determine:
+    runs-on: ubuntu-latest
+    outputs:
+      software_folders: ${{ steps.set.outputs.software_folders }}
+    steps:
+      - id: set
+        run: |
+          folders=$(find . -mindepth 1 -maxdepth 1 -type d ! -name '.*' -printf '%f\n' \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "software_folders=$folders" >> "$GITHUB_OUTPUT"
+
+  scan:
+    needs: determine
+    strategy:
+      matrix:
+        software_folders: ${{ fromJSON(needs.determine.outputs.software_folders) }}
+    uses: ./.github/workflows/impex-software.yml
+    with:
+      software_folders: ${{ matrix.software_folders }}
+      
