@@ -1,0 +1,3 @@
+name: nginx
+version: v1.0
+type: container

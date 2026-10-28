@@ -1,6 +1,0 @@
-name: Impex software
-
-jobs:
-    test:
-      uses: ./.github/workflows/impex-software.yml
-       

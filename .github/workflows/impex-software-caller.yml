@@ -23,4 +23,4 @@ jobs:
         software_folders: ${{ fromJSON(needs.determine.outputs.software_folders) }}
     uses: ./.github/workflows/impex-software.yml
     with:
-      software_folders: ${{ matrix.software_folders }}
+      software_folder: ${{ matrix.software_folders }}

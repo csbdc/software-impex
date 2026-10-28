@@ -1,14 +1,18 @@
-name: Impex software
-
 on:
   workflow_call:
     inputs:
-      software_folders:
+      software_folder:
         required: true
         type: string
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
-        steps:
-            - run: echo "${{ inputs.software_folders }}"; exit 0
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: pull
+        working-directory: ${{ inputs.software_folder }}
+        run: |
+          cat software.yml
+          
