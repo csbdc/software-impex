@@ -11,11 +11,9 @@ jobs:
     steps:
       - id: set
         run: |
-          folders=$(find . -mindepth 1 -maxdepth 1 -type d ! -name '.*' -printf '%f\n' \
-            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          pwd;
           find . -mindepth 1 -maxdepth 1 -type d ! -name '.*'
-          echo $folders
-          echo "software_folders=$folders" >> "$GITHUB_OUTPUT"
+
   scan:
     needs: determine
     strategy:
