@@ -9,10 +9,13 @@ jobs:
     outputs:
       software_folders: ${{ steps.set.outputs.software_folders }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - id: set
         run: |
-          pwd; find .
-
+          folders=$(find . -mindepth 1 -maxdepth 1 -type d ! -name '.*' -printf '%f\n' \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "software_folders=$folders" >> "$GITHUB_OUTPUT"
   scan:
     needs: determine
     strategy:
