@@ -24,7 +24,7 @@ jobs:
           fi
 
   impex:
-    # needs: detect
+    needs: detect
     runs-on: ${{ inputs.runner_type }}
     container:
       image: ghcr.io/csbdc/custom-actions-runners/actions-runner:3ab69efc4a86ab15fea5485fa73ae52c2e6cdc1a
