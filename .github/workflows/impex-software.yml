@@ -17,7 +17,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - run: |
-          if git show --format= --name-only HEAD | cut -d/ -f1 | sort -u | grep ${{ inputs.software_folder }}; then
+          if git show --format= --name-only HEAD | cut -d/ -f1 | grep ${{ inputs.software_folder }}; then
             echo "No changes in ${{ inputs.software_folder }}"
           else
             echo "${{ inputs.software_folder }} changed — run import"
