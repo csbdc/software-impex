@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   determine:
+    name: Determine software package
     runs-on: ubuntu-latest
     outputs:
       software_folders: ${{ steps.set.outputs.software_folders }}
@@ -23,6 +24,7 @@ jobs:
           echo "software_folders=$folders" >> "$GITHUB_OUTPUT"
   impex:
     needs: determine
+    name: "Impex Software package: "
     strategy:
       matrix:
         software_folders: ${{ fromJSON(needs.determine.outputs.software_folders) }}
