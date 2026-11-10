@@ -1,0 +1,61 @@
+name: Impex software libary
+
+on:
+  workflow_call:
+    inputs:
+      software_folder:
+        required: true
+        type: string
+      runner_type:
+        type: string
+        default: ubuntu-latest
+
+jobs:
+  # detect:
+  #   runs-on: ${{ inputs.runner_type }}
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #     - run: | 
+  #         if git diff --quiet HEAD^ HEAD -- ${{ inputs.software_folder }}/; then
+  #           echo "No changes in ${{ inputs.software_folder }}"
+  #         else
+  #           echo "${{ inputs.software_folder }} changed — run import"
+  #         fi
+
+  impex:
+    # needs: detect
+    runs-on: ${{ inputs.runner_type }}
+    container:
+      image: ghcr.io/csbdc/custom-actions-runners/actions-runner:3ab69efc4a86ab15fea5485fa73ae52c2e6cdc1a
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Determine Image
+        working-directory: ${{ inputs.software_folder }}
+        id: image
+        run: |
+          echo "registry=$(cat software.yml | yq -r .registry)" >> "$GITHUB_OUTPUT"
+          echo "image=$(cat software.yml | yq -r .image)" >> "$GITHUB_OUTPUT"
+          echo "tag=$(cat software.yml | yq -r .tag)" >> "$GITHUB_OUTPUT"
+      - name: Pull image
+        working-directory: ${{ inputs.software_folder }}
+        run: |
+          skopeo copy \
+          docker://${{ steps.image.outputs.registry }}/${{ steps.image.outputs.image }}:${{ steps.image.outputs.tag }} \
+          docker-archive:${{ steps.image.outputs.image }}-${{ steps.image.outputs.tag }}.tar:${{ steps.image.outputs.registry }}/${{ steps.image.outputs.image }}:${{ steps.image.outputs.tag }}
+      - name: Scan Image
+        working-directory: ${{ inputs.software_folder }}
+        run: |
+          trivy image \
+            --input ./${{ steps.image.outputs.image }}-${{ steps.image.outputs.tag }}.tar \
+            --severity HIGH,CRITICAL \
+            --output trivy-image.sarif \
+            --format sarif
+      - name: Scan Image with ClamAV
+        run: clamscan --infected --recursive ./${{ steps.image.outputs.image }}-${{ steps.image.outputs.tag }}.tar
+      - name: Publish Trivy results
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: ${{ inputs.software_folder }}/trivy-image.sarif
+          category: ${{ steps.image.outputs.image }}-${{ steps.image.outputs.tag }}-trivy

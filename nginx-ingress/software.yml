@@ -1,0 +1,4 @@
+image: kubernetes-ingress
+tag: edge
+type: container
+registry: ghcr.io/nginx

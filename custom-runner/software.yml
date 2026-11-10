@@ -1,0 +1,4 @@
+image: actions-runner
+tag: 3ab69efc4a86ab15fea5485fa73ae52c2e6cdc1a
+type: container
+registry: ghcr.io/csbdc/custom-actions-runners
