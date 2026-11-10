@@ -11,17 +11,17 @@ on:
         default: ubuntu-latest
 
 jobs:
-  # detect:
-  #   runs-on: ${{ inputs.runner_type }}
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v4
-  #     - run: | 
-  #         if git diff --quiet HEAD^ HEAD -- ${{ inputs.software_folder }}/; then
-  #           echo "No changes in ${{ inputs.software_folder }}"
-  #         else
-  #           echo "${{ inputs.software_folder }} changed — run import"
-  #         fi
+  detect:
+    runs-on: ${{ inputs.runner_type }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - run: |
+          if git show --format= --name-only HEAD | cut -d/ -f1 | sort -u | grep ${{ inputs.software_folder }}; then
+            echo "No changes in ${{ inputs.software_folder }}"
+          else
+            echo "${{ inputs.software_folder }} changed — run import"
+          fi
 
   impex:
     # needs: detect
